@@ -1,6 +1,6 @@
-# WebRTC P2P Video Call
+# WebRTC Group Video Call (Up to 4)
 
-A simple peer-to-peer video calling application built with React and WebRTC.
+A simple WebRTC group video calling demo (mesh topology) built with React + Vite, with a tiny WebSocket signaling server.
 
 ## Setup
 
@@ -9,48 +9,62 @@ A simple peer-to-peer video calling application built with React and WebRTC.
    npm install
    ```
 
-2. Start the development server:
+2. Start the signaling server (WebSocket, port 9001):
+   ```bash
+   npm run server
+   ```
+
+3. Start the React app (Vite, port 3000):
    ```bash
    npm run dev
    ```
 
-3. Open http://localhost:3000 in your browser
+4. Open http://localhost:3000 in your browser
 
-## How to Make a Video Call
+## How to Use (2 → 3 → 4 participants)
 
-This app uses manual signaling (copy-paste) for simplicity. To make a call between two peers:
-
-### Caller (Person A):
-1. Open the app in your browser
-2. Click "Start Camera" and allow camera/microphone access
-3. Click "Create Offer (Caller)"
-4. Copy the generated offer SDP
-5. Send it to your peer (via chat, email, etc.)
-
-### Receiver (Person B):
-1. Open the app in another browser/device
-2. Click "Start Camera" and allow camera/microphone access
-3. Paste the offer SDP you received
-4. Click "Accept Offer (Receiver)"
-5. Copy the generated answer SDP
-6. Send it back to the caller
-
-### Caller (Person A - continued):
-1. Paste the answer SDP you received
-2. Click "Accept Answer"
-3. The video call should now be connected!
+1. Person 1 opens the app → **Start Camera** → choose a **Room name** → **Join Room**
+2. Person 2 opens the same app URL → **Start Camera** → join the **same Room**
+3. To add a 3rd/4th participant, have them join the same room (or use **Add Participant (Copy Invite Link)**)
+4. The room supports up to **4 total participants** (you + up to 3 others)
 
 ## Notes
 
 - Both peers need to be on browsers that support WebRTC (Chrome, Firefox, Edge, Safari)
-- For calls over the internet, both peers need to be able to reach each other (may require TURN servers for strict NAT configurations)
+- For calls over the internet, participants need to be able to reach each other (may require TURN servers for strict NAT configurations)
 - The app uses Google's public STUN servers for NAT traversal
+- Signaling defaults to:
+  - `ws://<hostname>:9001` when running the Vite dev server (e.g. on `:3000`)
+  - `ws(s)://<same-origin-host>` when the app is served from the signaling server (recommended for sharing)
+  - You can always override by setting `VITE_SIGNALING_URL`.
+
+## Share with a Friend (ngrok, 1 tunnel)
+
+Because free ngrok accounts often allow only **one** simultaneous session, the easiest approach is to serve the built React app from the same Node server on **port 9001**, and tunnel just that one port.
+
+1. Build the app:
+   ```bash
+   npm run build
+   ```
+
+2. Start the server (serves `dist/` + WebSocket signaling on the same port):
+   ```bash
+   npm run start
+   ```
+
+3. Tunnel the server:
+   ```bash
+   ngrok http 9001
+   ```
+
+4. Share the **HTTPS** ngrok URL with your friend and have them join the same room.
 
 ## Tech Stack
 
 - React 18
 - Vite
 - WebRTC API
+- WebSocket signaling (`ws`)
 - CSS3
 
 ## Build for Production
